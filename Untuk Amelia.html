@@ -1,0 +1,304 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Untuk Amelia</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;800&display=swap">
+<style>
+  /* Layout: satu kartu di tengah layar. Awalnya hanya tombol bunga-hati; saat diklik, surat terbuka dan barisnya muncul satu per satu. */
+  :root {
+    --bg: #ffe4ee;
+    --bg-2: #ffcfe1;
+    --card: #fff7fa;
+    --ink: #5a2340;
+    --ink-soft: #8a4a68;
+    --accent: #ff5c9a;
+    --accent-deep: #d6336c;
+    --petal: #ffb3cf;
+    --petal-2: #ff8fb8;
+    --leaf: #7bc9a0;
+    --heart: #ff4d88;
+    --font-display: "Pacifico", "Brush Script MT", cursive;
+    --font-body: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { min-height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 15% 10%, var(--bg-2) 0 18%, transparent 19%),
+      radial-gradient(circle at 90% 85%, var(--bg-2) 0 22%, transparent 23%);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.65;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 28px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+  }
+  .stage {
+    width: 100%;
+    max-width: 480px;
+    min-width: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* dekorasi bunga di sudut */
+  .deco { position: fixed; pointer-events: none; z-index: 1; }
+  .deco svg { width: 100%; height: 100%; display: block; }
+  .deco.a { width: 120px; height: 120px; top: 8px; left: -28px; animation: sway 7s ease-in-out infinite; }
+  .deco.b { width: 90px; height: 90px; top: 70px; right: -20px; animation: sway 9s ease-in-out infinite reverse; }
+  .deco.c { width: 140px; height: 140px; bottom: -30px; left: -30px; animation: sway 8s ease-in-out infinite; }
+  .deco.d { width: 100px; height: 100px; bottom: 40px; right: -26px; animation: sway 6s ease-in-out infinite reverse; }
+  @keyframes sway { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+
+  /* tahap 1: tombol */
+  .intro { text-align: center; }
+  .intro h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2rem, 9vw, 2.8rem);
+    line-height: 1.25;
+    margin: 0 0 6px;
+    color: var(--accent-deep);
+    text-wrap: balance;
+  }
+  .intro p { margin: 0 0 26px; color: var(--ink-soft); font-weight: 600; }
+  .open-btn {
+    appearance: none;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    width: 220px;
+    max-width: 70vw;
+    aspect-ratio: 1;
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    animation: bounce 1.8s ease-in-out infinite;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .open-btn .flower-ring { position: absolute; inset: 0; width: 100%; height: 100%; animation: spin 24s linear infinite; }
+  .open-btn .core { position: relative; width: 46%; filter: drop-shadow(0 6px 10px rgba(214, 51, 108, .35)); animation: beat 1.2s ease-in-out infinite; }
+  .open-btn:focus-visible { outline: 3px solid var(--accent-deep); outline-offset: 6px; border-radius: 50%; }
+  .tap-hint {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--accent-deep);
+    font-weight: 800;
+    letter-spacing: .02em;
+    box-shadow: 0 4px 0 var(--petal);
+  }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes beat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+
+  /* tahap 2: surat */
+  .letter {
+    background: var(--card);
+    border-radius: 28px;
+    padding: 30px 24px 26px;
+    box-shadow: 0 10px 0 var(--petal), 0 24px 40px rgba(214, 51, 108, .22);
+    position: relative;
+    border: 3px dashed var(--petal-2);
+  }
+  .letter .crown {
+    width: 64px; height: 64px;
+    position: absolute; top: -34px; left: 50%;
+    transform: translateX(-50%);
+  }
+  .letter h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.6rem, 7vw, 2.1rem);
+    line-height: 1.3;
+    text-align: center;
+    margin: 10px 0 4px;
+    color: var(--accent-deep);
+    text-wrap: balance;
+  }
+  .letter .nama {
+    text-align: center;
+    margin: 0 0 18px;
+    font-size: .8rem;
+    font-weight: 800;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .letter p.line { margin: 0 0 14px; max-width: 65ch; }
+  .letter .penutup {
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--accent-deep);
+    margin: 20px 0 6px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .letter .penutup svg { width: 26px; height: 26px; animation: beat 1.2s ease-in-out infinite; }
+  .reveal { opacity: 0; transform: translateY(14px); animation: rise .7s ease forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  .again {
+    display: block;
+    margin: 14px auto 0;
+    appearance: none;
+    border: 0;
+    background: var(--petal);
+    color: var(--ink);
+    font: 800 .9rem var(--font-body);
+    padding: 9px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .again:focus-visible { outline: 3px solid var(--accent-deep); outline-offset: 3px; }
+
+  /* hati dan kelopak yang terbang */
+  .fly { position: fixed; z-index: 5; pointer-events: none; width: 26px; height: 26px; left: 0; top: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .deco, .open-btn, .open-btn .flower-ring, .open-btn .core, .letter .penutup svg { animation: none; }
+    .reveal { animation: none; opacity: 1; transform: none; }
+  }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="flower" viewBox="-50 -50 100 100">
+      <g fill="#ffb3cf" stroke="#ff8fb8" stroke-width="1.5">
+        <ellipse cx="0" cy="-26" rx="13" ry="20"/>
+        <ellipse cx="0" cy="-26" rx="13" ry="20" transform="rotate(72)"/>
+        <ellipse cx="0" cy="-26" rx="13" ry="20" transform="rotate(144)"/>
+        <ellipse cx="0" cy="-26" rx="13" ry="20" transform="rotate(216)"/>
+        <ellipse cx="0" cy="-26" rx="13" ry="20" transform="rotate(288)"/>
+      </g>
+      <circle r="11" fill="#ffe27a" stroke="#f4b942" stroke-width="1.5"/>
+      <circle cx="-3" cy="-3" r="2" fill="#f4b942"/>
+      <circle cx="3" cy="2" r="2" fill="#f4b942"/>
+    </symbol>
+    <symbol id="heart" viewBox="0 0 32 29">
+      <path fill="#ff4d88" d="M16 28.5C6 21 1 15.6 1 9.6 1 4.8 4.6 1.5 9 1.5c3 0 5.5 1.6 7 4.2 1.5-2.6 4-4.2 7-4.2 4.4 0 8 3.3 8 8.1 0 6-5 11.4-15 18.9z"/>
+      <ellipse cx="9" cy="9" rx="3" ry="2" fill="#fff" opacity=".55" transform="rotate(-30 9 9)"/>
+    </symbol>
+    <symbol id="face-heart" viewBox="0 0 64 58">
+      <path fill="#ff4d88" stroke="#d6336c" stroke-width="2" d="M32 56C12 41 2 31 2 19 2 9.6 9.2 3 18 3c6 0 11 3.2 14 8.4C35 6.200 40 3 46 3c8.800 0 16 6.600 16 16 0 12-10 22-30 37z"/>
+      <ellipse cx="18" cy="17" rx="6" ry="4" fill="#fff" opacity=".5" transform="rotate(-30 18 17)"/>
+      <circle cx="23" cy="26" r="2.600" fill="#5a2340"/>
+      <circle cx="41" cy="26" r="2.600" fill="#5a2340"/>
+      <path d="M27 33q5 5 10 0" fill="none" stroke="#5a2340" stroke-width="2.200" stroke-linecap="round"/>
+      <ellipse cx="17" cy="32" rx="4" ry="2.600" fill="#ff9ec0"/>
+      <ellipse cx="47" cy="32" rx="4" ry="2.600" fill="#ff9ec0"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="deco a" aria-hidden="true"><svg><use href="#flower"/></svg></div>
+<div class="deco b" aria-hidden="true"><svg><use href="#flower"/></svg></div>
+<div class="deco c" aria-hidden="true"><svg><use href="#flower"/></svg></div>
+<div class="deco d" aria-hidden="true"><svg><use href="#flower"/></svg></div>
+
+<main class="stage">
+  <section class="intro" id="intro">
+    <h1>Ada yang spesial buat kamu</h1>
+    <p>Amelia Puspitasari</p>
+    <button class="open-btn" id="openBtn" type="button" aria-label="Buka surat ulang tahun">
+      <svg class="flower-ring" viewBox="-100 -100 200 200" aria-hidden="true">
+        <use href="#flower" x="-22" y="-98" width="44" height="44"/>
+        <use href="#flower" x="54" y="-72" width="44" height="44"/>
+        <use href="#flower" x="54" y="28" width="44" height="44"/>
+        <use href="#flower" x="-22" y="54" width="44" height="44"/>
+        <use href="#flower" x="-98" y="28" width="44" height="44"/>
+        <use href="#flower" x="-98" y="-72" width="44" height="44"/>
+      </svg>
+      <svg class="core" viewBox="0 0 64 58" aria-hidden="true"><use href="#face-heart"/></svg>
+    </button>
+    <div><span class="tap-hint">Klik aku ya</span></div>
+  </section>
+
+  <section class="letter" id="letter" hidden aria-live="polite">
+    <svg class="crown" viewBox="0 0 64 58" aria-hidden="true"><use href="#face-heart"/></svg>
+    <h2 class="reveal" data-i="0">selamat ulang tahun ya, Amelia sayang</h2>
+    <p class="nama reveal" data-i="1">Amelia Puspitasari</p>
+    <p class="line reveal" data-i="2">makasih ya udah sabar banget sama aku selama ini, udah baik banget juga. kamu tuh selalu cantik, lucu, walau kadang marah juga sih hehe, tapi ya itu kamu, dan aku suka kamu yang emang bener-bener kamu apa adanya.</p>
+    <p class="line reveal" data-i="3">maaf ya kalau aku belum bisa sesuai sama maumu, masih sering nyebelin juga. aku masih belajar kok, pelan-pelan, buat jadi yang lebih baik buat kamu.</p>
+    <p class="line reveal" data-i="4">semoga di umur yang baru ini kamu sehat terus, bahagia, dilancarin semua urusannya, dan semua doa sama cita-citamu satu-satu terkabul. aku selalu doain yang terbaik buat kamu ya.</p>
+    <p class="penutup reveal" data-i="5"><svg viewBox="0 0 32 29" aria-hidden="true"><use href="#heart"/></svg>sayang kamu banget<svg viewBox="0 0 32 29" aria-hidden="true"><use href="#heart"/></svg></p>
+    <button class="again reveal" data-i="6" id="againBtn" type="button">Tutup surat</button>
+  </section>
+</main>
+
+<script>
+  (function () {
+    var intro = document.getElementById('intro');
+    var letter = document.getElementById('letter');
+    var openBtn = document.getElementById('openBtn');
+    var againBtn = document.getElementById('againBtn');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function burst(count) {
+      if (reduce || !document.body.animate) return;
+      var w = window.innerWidth, h = window.innerHeight;
+      var cx = w / 2, cy = h / 2;
+      for (var i = 0; i < count; i++) {
+        var el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        el.setAttribute('class', 'fly');
+        el.setAttribute('viewBox', i % 3 === 0 ? '-50 -50 100 100' : '0 0 32 29');
+        var use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', i % 3 === 0 ? '#flower' : '#heart');
+        el.appendChild(use);
+        var size = 18 + Math.random() * 26;
+        el.style.width = size + 'px';
+        el.style.height = size + 'px';
+        document.body.appendChild(el);
+        var angle = Math.random() * Math.PI * 2;
+        var dist = 90 + Math.random() * Math.min(w, h) * 0.5;
+        var dx = Math.cos(angle) * dist;
+        var dy = Math.sin(angle) * dist - 120;
+        var spin = (Math.random() - 0.5) * 540;
+        var anim = el.animate([
+          { transform: 'translate(' + cx + 'px,' + cy + 'px) scale(.2) rotate(0deg)', opacity: 1 },
+          { transform: 'translate(' + (cx + dx) + 'px,' + (cy + dy) + 'px) scale(1) rotate(' + spin + 'deg)', opacity: 1, offset: 0.55 },
+          { transform: 'translate(' + (cx + dx * 1.1) + 'px,' + (cy + dy + 220) + 'px) scale(.8) rotate(' + spin * 1.4 + 'deg)', opacity: 0 }
+        ], { duration: 1800 + Math.random() * 1200, easing: 'cubic-bezier(.2,.7,.3,1)', delay: Math.random() * 250 });
+        anim.onfinish = (function (node) { return function () { node.remove(); }; })(el);
+      }
+    }
+
+    function openLetter() {
+      intro.hidden = true;
+      letter.hidden = false;
+      var items = letter.querySelectorAll('.reveal');
+      for (var i = 0; i < items.length; i++) {
+        items[i].style.animationDelay = (0.25 + i * 0.55) + 's';
+      }
+      burst(34);
+      window.scrollTo(0, 0);
+    }
+
+    function closeLetter() {
+      letter.hidden = true;
+      intro.hidden = false;
+      var items = letter.querySelectorAll('.reveal');
+      for (var i = 0; i < items.length; i++) {
+        items[i].style.animation = 'none';
+        void items[i].offsetWidth;
+        items[i].style.animation = '';
+      }
+    }
+
+    openBtn.addEventListener('click', openLetter);
+    againBtn.addEventListener('click', closeLetter);
+  })();
+</script>
+
+</body></html>
